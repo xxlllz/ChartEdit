@@ -1,0 +1,60 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Defining the values
+x = np.arange(17)
+methods = ['','','','','','','',"TransT", "TrDiMP", "STARK", "CSWinTT", "ROMTrack", "SeqTrack", "Mixformer", "ARTrack", "SUTrack-B224", "SUTrack-B384"]
+
+y_values = [0.152, 0.175, 0.19, 0.27, 0.273, 0.275, 0.28, 0.293, 0.300, 0.303, 0.304, 0.318, 0.319, 0.325, 0.336, 0.338, 0.344]
+
+# Defining the marker styles and colors
+markers = ['d', 'v', '*', 'x', 'o', 'h', '^', 's', '>', '*', '<', '+', 'd', 'v', 'o', 'x', 'o']
+colors = ['green', 'orange', 'royalblue', 'lightblue', '#ef999b', 'green', '#cad01e', 'green', 'orange', '#4668b2', '#7cc7f1', '#ee9a9c', 'grey', '#cad01e', 'green', 'orange', '#4668b2']
+
+# Plot
+plt.figure(figsize=(10, 4))
+
+# 17 individual scatter commands
+plt.scatter(0, y_values[0], color='none', marker=markers[0], edgecolor=colors[0],linewidths=3,s=200,clip_on=False)
+plt.scatter(1, y_values[1], color='none', marker=markers[1], edgecolor=colors[1],linewidths=3,s=200,clip_on=False)
+plt.scatter(2, y_values[2], color='none', marker=markers[2], edgecolor=colors[2], linewidths=3, s=200, clip_on=False)
+plt.scatter(3, y_values[3], color='lightblue', marker=markers[3], edgecolor=colors[3], linewidths=5, s=200, clip_on=False)
+plt.scatter(4, y_values[4], color='none', marker=markers[4], edgecolor=colors[4], linewidths=3, s=200, clip_on=False)
+plt.scatter(5, y_values[5], color='none', marker=markers[5], edgecolor=colors[5], linewidths=3, s=200, clip_on=False)
+plt.scatter(6, y_values[6], color='none', marker=markers[6], edgecolor=colors[6], linewidths=3, s=200, clip_on=False)
+plt.scatter(7, y_values[7], color='none', marker=markers[7], edgecolor=colors[7], linewidths=3, s=200, clip_on=False, label=f"{methods[7]} [{y_values[7]:.3f}]")
+plt.scatter(8, y_values[8], color='none', marker=markers[8], edgecolor=colors[8], linewidths=3, s=200, clip_on=False, label=f"{methods[8]} [{y_values[8]:.3f}]")
+plt.scatter(9, y_values[9], color='none', marker=markers[9], edgecolor=colors[9], linewidths=3, s=200, clip_on=False, label=f"{methods[9]} [{y_values[9]:.3f}]")
+plt.scatter(10, y_values[10], color='none', marker=markers[10], edgecolor=colors[10], linewidths=3, s=200, clip_on=False, label=f"{methods[10]} [{y_values[10]:.3f}]")
+plt.scatter(11, y_values[11], color='#ee9a9c', marker=markers[11], edgecolor=colors[11], linewidths=3, s=200, clip_on=False, label=f"{methods[11]} [{y_values[11]:.3f}]")
+plt.scatter(12, y_values[12], color='none', marker=markers[12], edgecolor=colors[12], linewidths=3, s=200, clip_on=False, label=f"{methods[12]} [{y_values[12]:.3f}]")
+plt.scatter(13, y_values[13], color='none', marker=markers[13], edgecolor=colors[13], linewidths=3, s=200, clip_on=False, label=f"{methods[13]} [{y_values[13]:.3f}]")
+plt.scatter(14, y_values[14], color='green', marker=markers[14], edgecolor=colors[14], linewidths=3, s=200, clip_on=False, label=f"{methods[14]} [{y_values[14]:.3f}]")
+plt.scatter(15, y_values[15], color='orange', marker=markers[15], edgecolor=colors[15], linewidths=3, s=200, clip_on=False, label=f"{methods[15]} [{y_values[15]:.3f}]")
+plt.scatter(16, y_values[16], color='#4668b2', marker=markers[16], edgecolor=colors[16], linewidths=3, s=200, clip_on=False, label=f"{methods[16]} [{y_values[16]:.3f}]")
+
+
+for i in range(17): 
+    plt.vlines(i, 0, y_values[i], color='gray',alpha=0.3, linestyle='--', linewidth=1)  # Add dashed vertical lines to the x-axis
+
+plt.ylim(0.15,0.36)
+plt.yticks([0.15, 0.2, 0.25, 0.3], [0.15, 0.2, 0.25, 0.3], fontsize=18)
+
+plt.tick_params(axis='both', which='major', length=7, width=3, direction='in', top=True, right=True)
+# 设置每个脊柱（边框线）的宽度
+for spine in plt.gca().spines.values():
+    spine.set_linewidth(3)  # 将1.5替换为您想要的线条宽度
+
+plt.xlim(0, 16)
+# 设置主刻度和次刻度
+plt.xticks(range(1, 17, 3),[])  # 主tick从0到15，间隔为1
+
+plt.tick_params(axis='y', which='minor', length=0)
+plt.tick_params(axis='x', which='minor', length=1)
+plt.title('Bounding-box Evaluation', fontsize=18, weight='bold')
+plt.grid(True, linestyle='-', alpha=0.3,lw=3)
+legend = plt.legend(loc='center left', bbox_to_anchor=(1, 0.5), frameon=True,fontsize=16,edgecolor='black')
+legend.get_frame().set_linewidth(3)  # 设置边框线宽为3
+plt.subplots_adjust(right=0.75)
+plt.tight_layout()
+plt.savefig('scatter0.png')
