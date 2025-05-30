@@ -2,8 +2,23 @@
 
 This is the official repo of ChartEdit: How Far Are MLLMs From Automating Chart Analysis? Evaluating MLLMs' Capability via Chart Editing
 
-Here is the main idea of the pipeline for constructing the ChartEdit. ![image](github_fig/main.png)
+## Overview
+Here is the main pipeline for constructing the ChartEdit. 
+![image](github_fig/main.png)
 
-Also, some application cases are shown below. ![image](github_fig/case.png)
-
+## Evaluation
 We will open the benchmark and code soon.
+
+## Example
+Study cases are shown below. 
+![image](github_fig/case.png)
+
+## Citation
+```
+@article{zhao2025chartedit,
+  title={ChartEdit: How Far Are MLLMs From Automating Chart Analysis? Evaluating MLLMs' Capability via Chart Editing},
+  author={Zhao, Xuanle and Liu, Xuexin and Yang, Haoyue and Luo, Xianzhen and Zeng, Fanhu and Li, Jianling and Shi, Qi and Chen, Chi},
+  journal={arXiv preprint arXiv:2505.11935},
+  year={2025}
+}
+```
