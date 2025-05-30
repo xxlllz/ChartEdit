@@ -2,6 +2,8 @@
 
 This is the official repo of ChartEdit: How Far Are MLLMs From Automating Chart Analysis? Evaluating MLLMs' Capability via Chart Editing
 
-Here is the main idea of the pipeline for constructing the ChartEdit![image](github_fig/main.png)
+Here is the main idea of the pipeline for constructing the ChartEdit. ![image](github_fig/main.png)
+
+Also, some application cases are shown below. ![image](github_fig/case.png)
 
 We will open the benchmark and code soon.
