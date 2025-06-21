@@ -1,6 +1,12 @@
-# ChartEdit: How Far Are MLLMs From Automating Chart Analysis? Evaluating MLLMs' Capability via Chart Editing (ACL2025 Findings)
+# ChartEdit: How Far Are MLLMs From Automating Chart Analysis? Evaluating MLLMs' Capability via Chart Editing (ACL 2025 Findings)
 
-This is the official repo of ChartEdit: How Far Are MLLMs From Automating Chart Analysis? Evaluating MLLMs' Capability via Chart Editing
+[![🤗 Benchmark](https://img.shields.io/badge/Benchmark-HuggingFace-FFD21E.svg?logo=huggingface&logoColor=yellow)](https://huggingface.co/datasets/xxxllz/ChartEdit) [![📑 Paper (arXiv:2505.11935)](https://img.shields.io/badge/arXiv-2505.11935-b31b1b.svg?logo=arXiv)](https://arxiv.org/abs/2505.11935)
+
+This is the official repo of [ChartEdit](https://arxiv.org/abs/2505.11935).
+
+> ChartEdit: How Far Are MLLMs From Automating Chart Analysis? Evaluating MLLMs' Capability via Chart Editing
+>
+> Xuanle Zhao*, Xuexin Liu*, Haoyue Yang*, Xianzhen Luo, Fanhu Zeng, Jianling Li, Qi Shi†, Chi Chen†
 
 ## Overview
 Here is the main pipeline for constructing the ChartEdit. 
