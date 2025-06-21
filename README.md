@@ -4,14 +4,14 @@ This is the official repo of ChartEdit: How Far Are MLLMs From Automating Chart 
 
 ## Overview
 Here is the main pipeline for constructing the ChartEdit. 
-![image](github_fig/main.png)
+![image](fig/main.png)
 
 ## Evaluation
 We will open the benchmark and code soon.
 
 ## Example
 Study cases are shown below. 
-![image](github_fig/case.png)
+![image](fig/case.png)
 
 ## Citation
 ```
