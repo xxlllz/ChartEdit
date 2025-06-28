@@ -8,6 +8,10 @@ This is the official repo of [ChartEdit](https://arxiv.org/abs/2505.11935).
 >
 > Xuanle Zhao*, Xuexin Liu*, Haoyue Yang*, Xianzhen Luo, Fanhu Zeng, Jianling Li, Qi Shi†, Chi Chen†
 
+## TODO
+- [x] Benchmark data
+- [ ] Evaluation code
+
 ## Overview
 Here is the main pipeline for constructing the ChartEdit. 
 ![image](fig/main.png)
