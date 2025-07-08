@@ -1,0 +1,197 @@
+import time
+import os
+import json
+from tqdm import tqdm
+from multiprocessing import Pool, Manager
+from openai import OpenAI, RateLimitError, APIError
+
+def get_client_model(model_path, api_key, base_url):
+    """Initializes and returns the OpenAI client and model name."""
+    assert api_key, "API key is required for using OpenAI"
+    assert model_path, "Model name is required for using OpenAI"
+    client = OpenAI(api_key=api_key, base_url=base_url)
+    return client, model_path
+
+import os
+import json
+
+def load_descriptions_from_jsonl(jsonl_file, files_directory):
+    """
+    Loads descriptions from a JSONL file into a dictionary.
+
+    It uses the provided `files_directory` path and the `source` filename from the JSON data
+    to locate the source .png file, then finds the corresponding .py file and reads its content.
+
+    Args:
+        jsonl_file (str): The full path to the JSONL file.
+        files_directory (str): The directory path containing the source files (e.g., .png and .py).
+    """
+    description_dict = {}
+
+    # Check if the specified source file directory exists
+    if not os.path.isdir(files_directory):
+        print(f"Error: The specified files directory does not exist: {files_directory}")
+        return description_dict
+
+    with open(jsonl_file, 'r', encoding='utf-8') as f:
+        for line in f:
+            data = json.loads(line.strip())
+            file_id = data.get('id')
+            description = data.get('description', '')
+            # Get the source filename from JSON, e.g., "traffic_herding.png"
+            source_filename = data.get('source', '')
+
+            source_code_content = ""  # Default value
+
+            if file_id and source_filename:
+                # 1. Construct the full .png file path using 'files_directory' and the filename
+                full_png_path = os.path.join(files_directory, source_filename)
+                
+                # 2. Derive the .py path from the .png path
+                base_path, _ = os.path.splitext(full_png_path)
+                source_py_path = base_path + ".py"
+
+                # 3. Read the .py file content
+                if os.path.exists(source_py_path):
+                    with open(source_py_path, 'r', encoding='utf-8') as py_file:
+                        source_code_content = py_file.read()
+
+            # 4. Store the result
+            if file_id:
+                description_dict[file_id] = {
+                    'description': description,
+                    'source_code': source_code_content
+                }
+
+    return description_dict
+
+def generate_response(client, model, query, file_id):
+    """Generates a response using the OpenAI client, with retry logic."""
+    max_retries = 5
+    for attempt in range(max_retries):
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=[{"role": "user", "content": query}],
+                max_tokens=4096,
+                temperature=0.0,
+                top_p=1.0,
+                seed=23
+            )
+            if response.choices:
+                return response.choices[0].message.content
+            else:
+                raise ValueError("Invalid response structure: 'choices' field is missing or empty.")
+        
+        except RateLimitError:
+            wait_time = (2 ** attempt)
+            print(f"Rate limited on file {file_id}. Retrying in {wait_time} seconds...")
+            time.sleep(wait_time)
+            
+        except (APIError, Exception) as e:
+            print(f"An error occurred while processing file {file_id}: {e}")
+            # Break the loop for non-retriable errors
+            return None
+    
+    print(f"Failed to process file {file_id} after {max_retries} attempts.")
+    return None
+
+def process_file(file_id, source_folder, generate_folder, description_dict, model, client, result_list):
+    """Processes a single Python file by generating a code evaluation."""
+    try:
+        description_data = description_dict.get(int(file_id), {"description": "No description available.", "source": ""})
+        description = description_data.get('description')
+        source_id = description_data.get('source').removesuffix('.png')
+        
+        generated_file_path = os.path.join(generate_folder, f"{file_id}.py")
+        if not os.path.exists(generated_file_path):
+            print(f"Warning: Missing Python file for {file_id}. Skipping.")
+            return
+
+        with open(generated_file_path, 'r', encoding='utf-8') as f:
+            generated_code = f.read()
+        
+        source_file_path = os.path.join(source_folder, f"{source_id}.py")
+        with open(source_file_path, 'r', encoding='utf-8') as f:
+            source_code = f.read()        
+        
+        prompt = f"""
+You are an expert evaluator tasked with assessing the performance of a model on a Python code generation task. 
+You will be provided with the original Python code, the instructions given to the model, and the code generated by the model.
+The original code: {source_code}
+Instructions: {description}
+The generated code: {generated_code}
+### Scoring Methodology:
+The AI-generated code score is based on the following criteria, totaling a score out of 100:
+1. Modification Accuracy (30 points): Does the model make accurate and comprehensive modifications based on the instructions?
+2. Code Completeness (30 points): Is the generated code completely detailed and precise?
+3. Instruction Following Performance (40 points): Does the AI-generated code follow the instructions excellently with no elements missed or incorrectly interpreted?
+### Evaluation:
+Compare the two Python code files and provide a detailed assessment. Use the following format for your response:
+—
+Comments:
+- Modification Accuracy: your comment and subscore
+- Code Completeness: your comment and subscore
+- Instruction Following Performance: your comment and subscore
+Score: your final score out of 100
+—
+Please ensure the evaluation is clear and comprehensive.
+        """
+        response = generate_response(client, model, prompt, file_id)
+
+        result = {"file_id": file_id, "response": response}
+        result_list.append(result)
+
+    except Exception as e:
+        print(f"Error processing file {file_id}: {e}")
+        result = {"file_id": file_id, "response": None, "error": str(e)}
+        result_list.append(result)
+
+def process_files_in_parallel(source_folder, generate_folder, model, client, output_file, num_processes, description_dict):
+    """Processes all specified Python files in parallel."""
+    with Manager() as manager:
+        result_list = manager.list()
+        
+        py_files = [f for f in os.listdir(generate_folder) if f.endswith(".py")]
+        file_ids = [os.path.splitext(f)[0] for f in py_files]
+        
+        pool_args = [(file_id, source_folder, generate_folder, description_dict, model, client, result_list) for file_id in file_ids]
+
+        with Pool(processes=num_processes) as pool:
+            # Use tqdm to show progress
+            for _ in tqdm(pool.starmap(process_file, pool_args), total=len(file_ids), desc="Processing code files"):
+                pass
+
+        with open(output_file, "w", encoding='utf-8') as out_f:
+            for result in result_list:
+                out_f.write(json.dumps(result) + "\n")
+
+        print(f"Results saved to {output_file}")
+
+# Example usage
+if __name__ == "__main__":
+    # Your API key, model, and the custom base URL
+    API_KEY = os.environ.get("OPENAI_API_KEY") 
+    BASE_URL = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1")
+    MODEL_NAME = 'gpt-4o'
+    NUM_PROCESSES = 20
+    # Initialize the OpenAI client once
+    client, model = get_client_model(EVALUATION_MODEL, API_KEY, BASE_URL)
+    
+    model_list = ['InternVL2_5-8B']
+    
+    for model in model_list:
+        print(f"\nProcessing model: {model}")
+        
+        OUTPUT_FILE = f"results/code_level/{model.replace('-','_')}_results.jsonl"
+        GENERATE_FOLDER = f"results/{model.replace('-','_')}/code"
+        SOURCE_FOLDER = 'chartedit/source/'
+        DESCRIPTION_JSONL = "chartedit/instruction.jsonl"
+
+
+        # Ensure output directory exists
+        os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
+            
+        description_dict = load_descriptions_from_jsonl(DESCRIPTION_JSONL, SOURCE_FOLDER)
+        
+        process_files_in_parallel(SOURCE_FOLDER, GENERATE_FOLDER, model, client, OUTPUT_FILE, NUM_PROCESSES, description_dict)
