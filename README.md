@@ -8,19 +8,18 @@ This is the official repo of [ChartEdit](https://arxiv.org/abs/2505.11935).
 >
 > Xuanle Zhao*, Xuexin Liu*, Haoyue Yang*, Xianzhen Luo, Fanhu Zeng, Jianling Li, Qi Shi†, Chi Chen†
 
-## TODO
-- [x] Benchmark data
-- [ ] Evaluation code
 
 ## Overview
-Here is the main pipeline for constructing the ChartEdit. 
+The main pipeline for constructing the ChartEdit benchmark. 
 ![image](fig/main.png)
 
 ## Evaluation
-We will open the benchmark and code soon.
+Please first download the benchmark from [HuggingFace](https://huggingface.co/datasets/xxxllz/ChartEdit) and follow the ```generate_openai.py``` to generate the output code.
 
-## Example
-Study cases are shown below. 
+See ```eval``` for evaluating model performance from chart and code levels.
+
+
+## Case Study
 ![image](fig/case.png)
 
 ## Citation
